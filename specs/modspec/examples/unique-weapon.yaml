@@ -1,0 +1,57 @@
+# v0 reference case: a fully tier-1 mod — new unique weapon from vanilla assets.
+# Everything here is buildable with Mutagen + texconv + Archive2 alone.
+modspec: 0.1
+game: fallout4
+meta:
+  name: "The Last Word"
+  id: last-word
+  version: 0.1.0
+  canon:
+    - "A pre-war radio host's revolver, engraved 'sign off with style', surfaced in the Commonwealth."
+
+requires:
+  - master: Fallout4.esm
+
+records:
+  - type: WEAP
+    editor_id: LastWord
+    template:                       # clone-from grounds us in a real vanilla record
+      master: Fallout4.esm
+      editor_id: Fatman             # placeholder — resolved via layer-2 query at gen time
+      provenance: "query_records(type=WEAP, name~'.44')"
+    overrides:
+      full_name: "The Last Word"
+      damage: 64
+      value: 1200
+      material_swap: LastWordSwap
+
+  - type: MSWP
+    editor_id: LastWordSwap
+    swaps:
+      - from_material: "Setdressing/Weapons/44Standard.BGSM"
+        to_material: "generated/lastword.BGSM"
+
+  - type: OMOD                      # legendary effect attachment
+    editor_id: LastWordLegendary
+    template:
+      master: Fallout4.esm
+      editor_id: mod_Legendary_Weapon_DamageLimb
+      provenance: "query_records(type=OMOD, name~'legendary')"
+
+assets:
+  - kind: texture
+    id: lastword-diffuse
+    prompt: "engraved revolver frame, art-deco filigree, radio-station motif, worn blued steel"
+    output: Textures/generated/lastword_d.dds
+    format: BC7
+
+distribution:
+  - kind: leveled_list_injection
+    target:
+      master: Fallout4.esm
+      editor_id: LLI_Raider_Weapons   # placeholder — resolved at gen time
+    chance: 5
+    min_level: 15
+
+validation:
+  smoke_test: spawn_and_equip

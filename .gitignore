@@ -1,0 +1,21 @@
+# .NET
+bin/
+obj/
+*.user
+
+# Python
+__pycache__/
+.venv/
+
+# Build outputs
+out/
+dist/
+*.esp
+*.esm
+*.esl
+*.ba2
+*.pex
+
+# Local
+.env
+*.log
