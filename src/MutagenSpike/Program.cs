@@ -4,6 +4,45 @@ using System.Diagnostics;
 using Mutagen.Bethesda.Fallout4;
 using Mutagen.Bethesda.Plugins;
 
+// lookup mode: MutagenSpike lookup <hexFormId> [pluginPath]
+if (args.Length >= 2 && args[0] == "lookup")
+{
+    var id = Convert.ToUInt32(args[1], 16);
+    var path = args.Length > 2 ? args[2] : @"X:\SteamLibrary\steamapps\common\Fallout 4\Data\Fallout4.esm";
+    using var lmod = Fallout4Mod.CreateFromBinaryOverlay(path, Fallout4Release.Fallout4);
+    var hit = lmod.EnumerateMajorRecords().FirstOrDefault(r => r.FormKey.ID == id);
+    if (hit is null) { Console.WriteLine($"No record {id:X6} in {Path.GetFileName(path)}"); return 1; }
+    Console.WriteLine($"{hit.FormKey}  {hit.GetType().Name.Replace("BinaryOverlay", "")}  EditorID: {hit.EditorID}");
+    if (hit is Mutagen.Bethesda.Fallout4.ILeveledItemGetter lvli)
+    {
+        Console.WriteLine($"Flags: {lvli.Flags}  ChanceNone: {lvli.ChanceNone}  Entries: {lvli.Entries?.Count ?? 0}");
+        foreach (var e in lvli.Entries ?? [])
+            Console.WriteLine($"  level {e.Data?.Level,3}  count {e.Data?.Count,3}  -> {e.Data?.Reference.FormKey}");
+    }
+    return 0;
+}
+
+// overrides mode: MutagenSpike overrides <hexFormId> — list every plugin in the live
+// load order that carries a version of the record, in load order (last = winner).
+if (args.Length >= 2 && args[0] == "overrides")
+{
+    var id = Convert.ToUInt32(args[1], 16);
+    var fk = new FormKey(ModKey.FromNameAndExtension("Fallout4.esm"), id);
+    using var env = Mutagen.Bethesda.Environments.GameEnvironment.Typical
+        .Construct(Mutagen.Bethesda.GameRelease.Fallout4);
+    Console.WriteLine($"Load order: {env.LoadOrder.Count} entries. Scanning for {fk} ...");
+    foreach (var listing in env.LoadOrder.ListedOrder)
+    {
+        if (listing.Mod is not IFallout4ModGetter m) continue;
+        var rec = m.LeveledItems.FirstOrDefault(r => r.FormKey == fk);
+        if (rec is null) continue;
+        Console.WriteLine($"{m.ModKey.FileName}  ({rec.Entries?.Count ?? 0} entries, ChanceNone {rec.ChanceNone})");
+        foreach (var e in rec.Entries ?? [])
+            Console.WriteLine($"    level {e.Data?.Level,3} count {e.Data?.Count,3} -> {e.Data?.Reference.FormKey}");
+    }
+    return 0;
+}
+
 var esmPath = args.Length > 0
     ? args[0]
     : @"X:\SteamLibrary\steamapps\common\Fallout 4\Data\Fallout4.esm";
