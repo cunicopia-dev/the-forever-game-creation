@@ -3,6 +3,7 @@
 ## Crawl (months) — prove the pipeline
 
 - [ ] Mutagen spike: read Fallout4.esm, dump record stats (de-risks the load-bearing dependency)
+- [ ] Provenance ledger v0: generation records, artifact hashes, immutability-on-observation rule
 - [ ] Mod-spec v0 schema + validator
 - [ ] Build system MVP: spec → esp via Mutagen
 - [ ] First generated mod, data-only: a unique weapon (vanilla mesh + material swap +
@@ -13,6 +14,16 @@
 
 **Exit criterion:** an agent, using only MCP tools and the spec format, ships a working
 item mod into the load order with zero manual steps.
+
+### Testbed strategy: read broad, write narrow, converge
+
+- **Ingestion targets the full real load order from day one** — the ~1,500-mod StoryWealth
+  Commonwealth. The graph worth building is `G(base + DLC + installed mods + save +
+  generated history)`, not pristine vanilla.
+- **Generation starts against a controlled profile** so failures are diagnosable.
+- **The graduation exam** is generating coherent content *into* the full load order —
+  reasoning about SS2, FCOM, custom companions, altered leveled lists, compat patches,
+  and Forever Game content from six months ago, all at once.
 
 ## Walk (year 1) — narrative
 

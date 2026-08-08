@@ -26,12 +26,21 @@ history. A deterministic build system compiles it into a real mod. Validation ga
 The world moves while you sleep.
 
 Bethesda's Radiant quest system is a hand-rolled 2011 version of this idea, trapped inside
-the engine. We rebuild it outside the engine with actual intelligence behind it.
+the engine. Radiant is `template + slots + current world conditions`. This is
+`historical world state + semantic relationships + authored constraints + agent planning +
+deterministic compilation`. Same conceptual family, orders of magnitude more capable —
+because continuity is represented explicitly in the graph, not hallucinated.
+
+**The conceptual leap:** this is not fundamentally a mod generator. It is a **persistent
+world-state system with a game engine attached**. The knowledge graph is the semantic
+world; the ESPs are serialization; the save is telemetry. The product is not infinite
+content — it is **consequences that compound**.
 
 ## The five layers
 
 | # | Layer | What it is | Status |
 |---|-------|-----------|--------|
+| 0 | **Provenance ledger** | Append-only event log of every generation: inputs, decisions, artifacts, hashes, resulting saves. Enables causal archaeology and principled retcons | design |
 | 1 | **World model** | Knowledge graph of the game: records, lore, factions, quests — and everything we've generated, so year-3 content can reference year-1 content | design |
 | 2 | **Game-state access** | MCP server exposing plugin records + parsed save files as queryable tools for agents | design |
 | 3 | **Generation** | Specialized agents (quest designer, dialogue writer, item balancer) that emit declarative **mod specs** — never raw bytes | design |

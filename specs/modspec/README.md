@@ -1,8 +1,37 @@
 # The mod spec
 
 The declarative intermediate representation between AI intent and engine bytes — the
-load-bearing artifact of the whole system. Agents (layer 3) emit specs; the build system
-(layer 4) compiles them. Games change, models change; the IR survives.
+load-bearing artifact of the whole system. Games change, models change; the IR survives.
+
+It is a **two-level lowering stack**:
+
+- **Intent IR** — what agents emit. Premises, prerequisites, outcomes, semantic references
+  (`npc.raider_lieutenant_001`, `settlement.greentop`). No FormIDs, no record types.
+- **Change IR** — what deterministic elaboration produces. Record-level declarations with
+  resolved masters and provenance. What the backend compiler consumes.
+
+### Intent IR sketch (quest)
+
+```yaml
+quest:
+  id: caravan_reckoning
+  prerequisites:
+    - player.spared: npc.raider_lieutenant_001
+    - faction.caravan_company.exists
+    - settlement.greentop.player_controlled
+  premise:
+    type: investigation
+    instigator: npc.mayor.greentop
+  outcomes:
+    - expose_conspiracy
+    - conceal_conspiracy
+    - side_with_caravan_company
+```
+
+The elaboration pass — deterministic planning, not an LLM — resolves semantic refs against
+the world model, selects quest templates, allocates editor IDs, and emits Change IR. The
+[unique-weapon example](examples/unique-weapon.yaml) below is written at the Change IR
+level and remains the v0 compiler reference case.
 
 ## Design rules
 
